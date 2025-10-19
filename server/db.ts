@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, lte, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, properties, InsertProperty, leads, InsertLead, premiumListings, InsertPremiumListing, analytics, InsertAnalytic } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -85,4 +85,68 @@ export async function getUser(id: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Properties queries
+export async function getProperties(filters?: {
+  borough?: string;
+  propertyType?: string;
+  maxPrice?: number;
+  minPrice?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(properties).where(eq(properties.status, 'active'));
+  return result;
+}
+
+export async function getPropertyById(id: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(properties).where(eq(properties.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createProperty(data: InsertProperty) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.insert(properties).values(data);
+}
+
+// Leads queries
+export async function createLead(data: InsertLead) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.insert(leads).values(data);
+}
+
+export async function getLeads(status?: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(leads);
+  return result;
+}
+
+// Premium listings queries
+export async function createPremiumListing(data: InsertPremiumListing) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.insert(premiumListings).values(data);
+}
+
+// Analytics queries
+export async function logAnalyticEvent(data: InsertAnalytic) {
+  const db = await getDb();
+  if (!db) return;
+
+  try {
+    await db.insert(analytics).values(data);
+  } catch (error) {
+    console.error('[Analytics] Failed to log event:', error);
+  }
+}
+
