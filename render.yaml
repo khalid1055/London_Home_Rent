@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: london-home-rent
+    env: node
+    plan: starter
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+    autoDeploy: true
+    
+  - type: mysql
+    name: london-home-rent-db
+    plan: starter
+    ipAllowList: []
+    envVars:
+      - key: MYSQL_DATABASE
+        value: london_home_rent
+      - key: MYSQL_USER
+        value: admin
+      - fromDatabase:
+          name: london-home-rent-db
+          property: connectionString
+        key: DATABASE_URL
+
