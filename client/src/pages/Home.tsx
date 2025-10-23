@@ -64,6 +64,9 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-slate-900">{APP_TITLE}</h1>
           </div>
           <nav className="flex items-center gap-4">
+            <Button asChild variant="ghost" size="sm">
+              <a href="/domain-for-sale">Domain for Sale</a>
+            </Button>
             {isAuthenticated ? (
               <>
                 <span className="text-sm text-slate-600">Welcome, {user?.name}</span>
@@ -276,6 +279,7 @@ export default function Home() {
                       ))}
                     </SelectContent>
                   </Select>
+
                   <Input
                     type="number"
                     placeholder="Budget (£/month)"
@@ -285,22 +289,16 @@ export default function Home() {
                 </div>
 
                 <textarea
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   placeholder="Tell us more about what you're looking for..."
-                  rows={3}
+                  className="w-full p-3 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={4}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 />
 
                 <Button type="submit" className="w-full" size="lg" disabled={submitLeadMutation.isPending}>
-                  {submitLeadMutation.isPending ? "Submitting..." : "Get Matched with Properties"}
+                  {submitLeadMutation.isPending ? "Submitting..." : "Submit Interest"}
                 </Button>
-
-                {submitLeadMutation.isSuccess && (
-                  <p className="text-green-600 text-sm text-center">
-                    ✓ Thank you! We'll be in touch soon with matching properties.
-                  </p>
-                )}
               </form>
             </CardContent>
           </Card>
@@ -313,7 +311,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <h4 className="font-bold mb-4">About Us</h4>
-              <p className="text-slate-400 text-sm">LondonHomeRent.com connects renters with the best properties across London.</p>
+              <p className="text-slate-400 text-sm">LondonHomeRent.com - Your trusted platform for finding rental properties across London.</p>
             </div>
             <div>
               <h4 className="font-bold mb-4">Quick Links</h4>
@@ -324,21 +322,25 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Resources</h4>
+              <h4 className="font-bold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white">Rental Guide</a></li>
-                <li><a href="#" className="hover:text-white">Market Trends</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
+                <li><a href="#" className="hover:text-white">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white">Cookie Policy</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Contact</h4>
-              <p className="text-slate-400 text-sm">Email: info@londonhomerent.com</p>
-              <p className="text-slate-400 text-sm">Phone: +44 (0) 20 XXXX XXXX</p>
+              <h4 className="font-bold mb-4">Domain</h4>
+              <p className="text-slate-400 text-sm mb-3">This premium domain is available for purchase.</p>
+              <a href="/domain-for-sale" className="text-blue-400 hover:text-blue-300 text-sm">
+                View Details →
+              </a>
             </div>
           </div>
-          <div className="border-t border-slate-800 pt-8 text-center text-slate-400 text-sm">
-            <p>&copy; 2025 LondonHomeRent.com. All rights reserved.</p>
+          <div className="border-t border-slate-800 pt-8">
+            <p className="text-center text-slate-400 text-sm">
+              © 2025 LondonHomeRent.com. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
