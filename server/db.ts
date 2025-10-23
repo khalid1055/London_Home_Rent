@@ -1,4 +1,4 @@
-import { eq, lte, gte } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, properties, InsertProperty, leads, InsertLead, premiumListings, InsertPremiumListing, analytics, InsertAnalytic } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -128,6 +128,13 @@ export async function getLeads(status?: string) {
 
   const result = await db.select().from(leads);
   return result;
+}
+
+export async function updateLeadStatus(id: string, status: "new" | "contacted" | "qualified" | "converted") {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.update(leads).set({ status }).where(eq(leads.id, id));
 }
 
 // Premium listings queries
