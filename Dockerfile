@@ -9,7 +9,7 @@ RUN npm install -g pnpm
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Added Line
+# Added Line in bulid stage
 COPY patches ./patches
 
 # Install dependencies
