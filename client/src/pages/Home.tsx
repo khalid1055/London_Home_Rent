@@ -34,6 +34,29 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      {/* Top Banner */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-2 px-4 text-center text-sm font-semibold">
+        <a href="/domain-for-sale" className="hover:underline">
+          Domain for Sale - Click to Learn More
+        </a>
+      </div>
+
+      {/* News Ticker */}
+      <div className="bg-gray-900 text-white py-3 px-4 overflow-hidden">
+        <div className="flex items-center gap-4">
+          <span className="font-bold text-sm whitespace-nowrap">MARKET NEWS:</span>
+          <div className="flex-1 overflow-hidden">
+            <div className="animate-scroll flex gap-8">
+              <span className="whitespace-nowrap">London rental market up 7.3% YoY</span>
+              <span className="whitespace-nowrap">Westminster avg rent: 2,800/month</span>
+              <span className="whitespace-nowrap">Demand for 2-bedroom properties highest</span>
+              <span className="whitespace-nowrap">Tech hubs driving North London growth</span>
+              <span className="whitespace-nowrap">London rental market up 7.3% YoY</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
