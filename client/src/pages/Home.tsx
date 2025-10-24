@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, MapPin, TrendingUp, Bell, Star, BarChart3, BookOpen } from "lucide-react";
+import { Search, MapPin, TrendingUp, Bell, Star, BarChart3, BookOpen, ExternalLink, AlertCircle } from "lucide-react";
 
 export default function Home() {
   const { user } = useAuth();
@@ -43,17 +43,17 @@ export default function Home() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900">LondonHomeRent</h1>
           </div>
-          <nav className="flex items-center gap-4">
-            <a href="/smart-alerts" className="text-gray-600 hover:text-blue-600">
+          <nav className="flex items-center gap-6">
+            <a href="/smart-alerts" className="text-gray-600 hover:text-blue-600 text-sm">
               Smart Alerts
             </a>
-            <a href="/reviews" className="text-gray-600 hover:text-blue-600">
+            <a href="/reviews" className="text-gray-600 hover:text-blue-600 text-sm">
               Reviews
             </a>
-            <a href="/guides" className="text-gray-600 hover:text-blue-600">
+            <a href="/guides" className="text-gray-600 hover:text-blue-600 text-sm">
               Guides
             </a>
-            <a href="/domain-for-sale" className="text-gray-600 hover:text-blue-600 font-semibold">
+            <a href="/domain-for-sale" className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-semibold text-sm">
               Domain for Sale
             </a>
           </nav>
@@ -287,8 +287,62 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Domain for Sale Banner */}
+      <section className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-8 mt-16">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-8 h-8" />
+              <div>
+                <h3 className="text-xl font-bold">This Domain is For Sale</h3>
+                <p className="text-amber-100">Interested in purchasing londonhomerent.com?</p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <Button
+                asChild
+                className="bg-white text-orange-600 hover:bg-amber-50 font-semibold"
+              >
+                <a
+                  href="https://www.atom.com/view/name/LondonHomeRent.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Buy on Atom
+                </a>
+              </Button>
+              <Button
+                asChild
+                className="bg-white text-orange-600 hover:bg-amber-50 font-semibold"
+              >
+                <a
+                  href="https://sedo.com/search/details/?domain=londonhomerent.com&origin=domaindetails"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Buy on Sedo
+                </a>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="border-white text-white hover:bg-white/10 font-semibold"
+              >
+                <a href="/domain-for-sale" className="flex items-center justify-center gap-2">
+                  More Info
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 mt-16">
+      <footer className="bg-gray-900 text-white py-12 mt-0">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-400">© 2025 LondonHomeRent.com - All rights reserved</p>
         </div>
