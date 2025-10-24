@@ -91,7 +91,7 @@
                 <h2>Interested in London Properties?</h2>
                 <p>Tell us what you're looking for and we'll help you find the perfect home</p>
                 
-                <form class="lead-form" action="https://formspree.io/f/mwpweprj" method="POST">
+                <form class="lead-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
                     <div class="form-row">
                         <div class="form-field">
                             <label>Full Name *</label>
