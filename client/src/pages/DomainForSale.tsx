@@ -49,7 +49,7 @@ export default function DomainForSale() {
                 className="bg-white text-blue-600 hover:bg-blue-50 font-semibold"
               >
                 <a 
-                  href="https://sedo.com" 
+                  href="https://sedo.com/search/details/?domain=londonhomerent.com&origin=domaindetails" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
