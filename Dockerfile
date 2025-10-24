@@ -6,6 +6,11 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm
 
+# Force cache bust
+ARG CACHE_BUST=1
+
+#Cache fix 2025-10-24
+
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
