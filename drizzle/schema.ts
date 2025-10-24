@@ -97,6 +97,91 @@ export const affiliatePartners = mysqlTable("affiliatePartners", {
 export type AffiliatePartner = typeof affiliatePartners.$inferSelect;
 export type InsertAffiliatePartner = typeof affiliatePartners.$inferInsert;
 
+// Smart Alerts - user search preferences
+export const searchAlerts = mysqlTable("searchAlerts", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  userId: varchar("userId", { length: 64 }).notNull(),
+  borough: varchar("borough", { length: 100 }),
+  minPrice: int("minPrice"),
+  maxPrice: int("maxPrice"),
+  bedrooms: int("bedrooms"),
+  propertyType: varchar("propertyType", { length: 50 }),
+  keywords: text("keywords"),
+  notificationEmail: boolean("notificationEmail").default(true),
+  notificationWhatsApp: boolean("notificationWhatsApp").default(false),
+  whatsAppNumber: varchar("whatsAppNumber", { length: 20 }),
+  isActive: boolean("isActive").default(true),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type SearchAlert = typeof searchAlerts.$inferSelect;
+export type InsertSearchAlert = typeof searchAlerts.$inferInsert;
+
+// Reviews & Ratings
+export const reviews = mysqlTable("reviews", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  propertyId: varchar("propertyId", { length: 64 }),
+  boroughName: varchar("boroughName", { length: 100 }),
+  userId: varchar("userId", { length: 64 }),
+  userName: varchar("userName", { length: 255 }).notNull(),
+  rating: int("rating").notNull(), // 1-5 stars
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  categories: text("categories"), // JSON: safety, amenities, transport, etc.
+  helpful: int("helpful").default(0),
+  unhelpful: int("unhelpful").default(0),
+  isVerified: boolean("isVerified").default(false),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending"),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type Review = typeof reviews.$inferSelect;
+export type InsertReview = typeof reviews.$inferInsert;
+
+// Comprehensive Guides
+export const guides = mysqlTable("guides", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  borough: varchar("borough", { length: 100 }),
+  category: varchar("category", { length: 100 }).notNull(), // "borough-guide", "neighborhood", "tips", etc.
+  content: text("content").notNull(),
+  excerpt: varchar("excerpt", { length: 500 }),
+  imageUrl: varchar("imageUrl", { length: 500 }),
+  sections: text("sections"), // JSON: {title, content}
+  seoTitle: varchar("seoTitle", { length: 255 }),
+  seoDescription: varchar("seoDescription", { length: 500 }),
+  keywords: text("keywords"),
+  views: int("views").default(0),
+  isPublished: boolean("isPublished").default(false),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+});
+
+export type Guide = typeof guides.$inferSelect;
+export type InsertGuide = typeof guides.$inferInsert;
+
+// Investment Analysis
+export const investmentAnalysis = mysqlTable("investmentAnalysis", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  borough: varchar("borough", { length: 100 }).notNull(),
+  averageRent: int("averageRent"),
+  averagePropertyPrice: int("averagePropertyPrice"),
+  rentYield: int("rentYield"), // percentage * 100
+  capitalGrowth: int("capitalGrowth"), // percentage * 100
+  demandLevel: mysqlEnum("demandLevel", ["low", "medium", "high", "very_high"]),
+  priceGrowth: int("priceGrowth"), // YoY percentage * 100
+  investmentScore: int("investmentScore"), // 1-100
+  bestFor: text("bestFor"), // JSON: ["first_time_buyers", "investors", etc.]
+  pros: text("pros"), // JSON array
+  cons: text("cons"), // JSON array
+  futureOutlook: varchar("futureOutlook", { length: 255 }),
+  lastUpdated: timestamp("lastUpdated").defaultNow(),
+});
+
+export type InvestmentAnalysis = typeof investmentAnalysis.$inferSelect;
+export type InsertInvestmentAnalysis = typeof investmentAnalysis.$inferInsert;
+
 // Analytics - track page views and conversions
 export const analytics = mysqlTable("analytics", {
   id: varchar("id", { length: 64 }).primaryKey(),
