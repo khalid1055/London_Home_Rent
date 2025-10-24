@@ -31,6 +31,8 @@ export const properties = mysqlTable("properties", {
   bathrooms: int("bathrooms"),
   squareFeet: int("squareFeet"),
   imageUrl: varchar("imageUrl", { length: 500 }),
+  source: varchar("source", { length: 100 }), // zoopla, rightmove, nestoria, etc.
+  sourceUrl: varchar("sourceUrl", { length: 500 }), // Link to original listing
   agentId: varchar("agentId", { length: 64 }),
   agentName: varchar("agentName", { length: 255 }),
   agentEmail: varchar("agentEmail", { length: 320 }),

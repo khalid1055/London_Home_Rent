@@ -15,6 +15,13 @@
       "when": 1760889243744,
       "tag": "0001_lush_true_believers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1761282389235,
+      "tag": "0002_cooing_phalanx",
+      "breakpoints": true
     }
   ]
 }
