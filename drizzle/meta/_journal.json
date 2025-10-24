@@ -5,29 +5,15 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1760889215166,
-      "tag": "0000_previous_bushwacker",
+      "when": 1761323346299,
+      "tag": "0000_gray_dragon_lord",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "5",
-      "when": 1760889243744,
-      "tag": "0001_lush_true_believers",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1761282389235,
-      "tag": "0002_cooing_phalanx",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1761283014446,
-      "tag": "0003_kind_blue_marvel",
+      "when": 1761323467434,
+      "tag": "0001_minor_hex",
       "breakpoints": true
     }
   ]

@@ -2,11 +2,8 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { getProperties, getPropertyById, createLead, getLeads, updateLeadStatus } from "./db";
-import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import { generateLeadsExcel } from "./leadsExport";
-import { sendLeadNotificationEmail } from "./_core/emailNotification";
+import * as db from "./db";
 
 export const appRouter = router({
   system: systemRouter,
@@ -22,93 +19,54 @@ export const appRouter = router({
     }),
   }),
 
-  properties: router({
+  boroughs: router({
     list: publicProcedure.query(async () => {
-      return getProperties();
+      return await db.getAllBoroughs();
     }),
     getById: publicProcedure
-      .input(z.string())
+      .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
-        return getPropertyById(input);
+        return await db.getBoroughById(input.id);
+      }),
+  }),
+
+  properties: router({
+    list: publicProcedure.query(async () => {
+      return await db.getAllProperties();
+    }),
+    featured: publicProcedure.query(async () => {
+      return await db.getFeaturedProperties();
+    }),
+    getById: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getPropertyById(input.id);
       }),
   }),
 
   leads: router({
-    submit: publicProcedure
+    create: publicProcedure
       .input(z.object({
-        name: z.string(),
-        email: z.string().email(),
+        fullName: z.string().min(1, "Full name is required"),
+        email: z.string().email("Valid email is required"),
         phone: z.string().optional(),
-        interestedIn: z.enum(["buy", "sell", "rent"]),
-        borough: z.string().optional(),
+        interestedIn: z.enum(["Renting", "Buying", "Selling", "Investing"]),
+        preferredBoroughId: z.number().optional(),
         budget: z.number().optional(),
         message: z.string().optional(),
-        source: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        const leadId = uuidv4();
-        await createLead({
-          id: leadId,
-          name: input.name,
+        await db.createLead({
+          fullName: input.fullName,
           email: input.email,
           phone: input.phone,
           interestedIn: input.interestedIn,
-          borough: input.borough,
+          preferredBoroughId: input.preferredBoroughId,
           budget: input.budget,
           message: input.message,
-          source: input.source || 'website',
-          status: 'new',
         });
-        
-        // Send notification email to owner
-        try {
-          await sendLeadNotificationEmail({
-            name: input.name,
-            email: input.email,
-            phone: input.phone,
-            interestedIn: input.interestedIn,
-            borough: input.borough,
-            budget: input.budget,
-            message: input.message,
-          });
-        } catch (error) {
-          console.error('Failed to send notification email:', error);
-        }
-        
         return { success: true };
       }),
-
-    getAll: publicProcedure.query(async () => {
-      return getLeads();
-    }),
-
-    updateStatus: publicProcedure
-      .input(z.object({
-        id: z.string(),
-        status: z.enum(["new", "contacted", "qualified", "converted"]),
-      }))
-      .mutation(async ({ input }) => {
-        await updateLeadStatus(input.id, input.status);
-        return { success: true };
-      }),
-
-    export: publicProcedure.mutation(async () => {
-      try {
-        const leads = await getLeads();
-        const excelBuffer = await generateLeadsExcel(leads);
-        
-        // In a real scenario, you would upload to S3 or return base64
-        // For now, return a success message
-        return { 
-          success: true,
-          downloadUrl: "/api/export/leads",
-          message: "Excel file generated successfully"
-        };
-      } catch (error) {
-        console.error('Failed to export leads:', error);
-        return { success: false, error: 'Failed to generate export' };
-      }
-    }),
   }),
 });
 

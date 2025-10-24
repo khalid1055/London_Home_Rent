@@ -1,373 +1,436 @@
 import { useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, MapPin, TrendingUp, Bell, Star, BarChart3, BookOpen, ExternalLink, AlertCircle } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { Bell, BookOpen, Calculator, Star } from "lucide-react";
 
 export default function Home() {
-  const { user } = useAuth();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    interestedIn: "rent",
-    borough: "",
-    budget: "",
-    message: "",
-  });
+  const [searchBorough, setSearchBorough] = useState("all");
+  const [searchBedrooms, setSearchBedrooms] = useState("any");
+  const [searchMaxPrice, setSearchMaxPrice] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Here you would call the API to save the lead
-    alert("Thank you! We'll contact you soon.");
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      interestedIn: "rent",
-      borough: "",
-      budget: "",
-      message: "",
-    });
+  // Lead form state
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [interestedIn, setInterestedIn] = useState<"Renting" | "Buying" | "Selling" | "Investing">("Renting");
+  const [preferredBorough, setPreferredBorough] = useState("");
+  const [budget, setBudget] = useState("");
+  const [message, setMessage] = useState("");
+
+  const { data: boroughs = [] } = trpc.boroughs.list.useQuery();
+  const createLeadMutation = trpc.leads.create.useMutation();
+
+  const handleSearch = () => {
+    toast.info("Search functionality coming soon!");
   };
 
+  const handleSubmitLead = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!fullName || !email) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      await createLeadMutation.mutateAsync({
+        fullName,
+        email,
+        phone: phone || undefined,
+        interestedIn,
+        preferredBoroughId: preferredBorough ? parseInt(preferredBorough) : undefined,
+        budget: budget ? parseInt(budget) : undefined,
+        message: message || undefined,
+      });
+
+      toast.success("Thank you! We'll be in touch soon.");
+      
+      // Reset form
+      setFullName("");
+      setEmail("");
+      setPhone("");
+      setPreferredBorough("");
+      setBudget("");
+      setMessage("");
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
+
+  const newsItems = [
+    "London rental market up 7.3% YoY",
+    "Westminster avg rent: £2,800/month",
+    "Demand for 2-bedroom properties highest",
+    "Tech hubs driving North London growth",
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-2 px-4 text-center text-sm font-semibold">
-        <a href="/domain-for-sale" className="hover:underline">
-          Domain for Sale - Click to Learn More
-        </a>
+    <div className="min-h-screen flex flex-col">
+      {/* Red Banner */}
+      <div className="bg-red-600 text-white py-3 text-center font-semibold">
+        <div className="container flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+          <span>🏠 Domain for Sale</span>
+          <span className="hidden sm:inline">|</span>
+          <a href="https://sedo.com/search/details/?domain=londonhomerent.com&origin=domaindetails" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-100 transition-colors">
+            Buy on Sedo
+          </a>
+          <span className="hidden sm:inline">|</span>
+          <a href="https://www.atom.com/name/LondonHomeRent" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-100 transition-colors">
+            Buy on Atom
+          </a>
+        </div>
       </div>
 
       {/* News Ticker */}
-      <div className="bg-gray-900 text-white py-3 px-4 overflow-hidden">
-        <div className="flex items-center gap-4">
-          <span className="font-bold text-sm whitespace-nowrap">MARKET NEWS:</span>
-          <div className="flex-1 overflow-hidden">
-            <div className="animate-scroll flex gap-8">
-              <span className="whitespace-nowrap">London rental market up 7.3% YoY</span>
-              <span className="whitespace-nowrap">Westminster avg rent: 2,800/month</span>
-              <span className="whitespace-nowrap">Demand for 2-bedroom properties highest</span>
-              <span className="whitespace-nowrap">Tech hubs driving North London growth</span>
-              <span className="whitespace-nowrap">London rental market up 7.3% YoY</span>
-            </div>
+      <div className="bg-gray-800 text-white py-2 overflow-hidden">
+        <div className="flex whitespace-nowrap">
+          <div className="flex animate-scroll">
+            <span className="mx-8 font-medium">MARKET NEWS:</span>
+            {newsItems.map((item, i) => (
+              <span key={i} className="mx-8">{item}</span>
+            ))}
+            <span className="mx-8 font-medium">MARKET NEWS:</span>
+            {newsItems.map((item, i) => (
+              <span key={`dup-${i}`} className="mx-8">{item}</span>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-              LH
+      <header className="bg-white border-b sticky top-0 z-50">
+        <div className="container py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                LH
+              </div>
+              <span className="text-xl font-bold">LondonHomeRent</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">LondonHomeRent</h1>
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="#alerts" className="text-gray-700 hover:text-blue-600 font-medium">Smart Alerts</a>
+              <a href="#reviews" className="text-gray-700 hover:text-blue-600 font-medium">Reviews</a>
+              <a href="#guides" className="text-gray-700 hover:text-blue-600 font-medium">Guides</a>
+              <Button variant="default" className="bg-orange-500 hover:bg-orange-600">
+                <a href="#domain-sale">Domain for Sale</a>
+              </Button>
+            </nav>
           </div>
-          <nav className="flex items-center gap-6">
-            <a href="/smart-alerts" className="text-gray-600 hover:text-blue-600 text-sm">
-              Smart Alerts
-            </a>
-            <a href="/reviews" className="text-gray-600 hover:text-blue-600 text-sm">
-              Reviews
-            </a>
-            <a href="/guides" className="text-gray-600 hover:text-blue-600 text-sm">
-              Guides
-            </a>
-            <a href="/domain-for-sale" className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-semibold text-sm">
-              Domain for Sale
-            </a>
-          </nav>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
+      <section className="relative py-20 bg-cover bg-center" style={{ backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(/london-hero.jpg)' }}>
+        <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-5xl font-bold text-gray-900 mb-4">Find Your Perfect London Home</h2>
-            <p className="text-xl text-gray-600">
-              Discover rental properties across London's best neighborhoods
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Find Your Perfect London Home
+            </h1>          <p className="text-xl text-gray-100 mb-8">             Discover rental properties across London's best neighborhoods
             </p>
           </div>
 
-          {/* Quick Search */}
-          <Card className="mb-12 border-0 shadow-lg">
-            <CardContent className="pt-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          {/* Search Form */}
+          <Card className="max-w-4xl mx-auto">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Borough</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    <option>All Boroughs</option>
-                    <option>Westminster</option>
-                    <option>Camden</option>
-                    <option>Islington</option>
-                    <option>Hackney</option>
-                  </select>
+                  <Label htmlFor="borough">Borough</Label>
+                  <Select value={searchBorough} onValueChange={setSearchBorough}>
+                    <SelectTrigger id="borough">
+                      <SelectValue placeholder="All Boroughs" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Boroughs</SelectItem>
+                      {boroughs.map((borough) => (
+                        <SelectItem key={borough.id} value={borough.id.toString()}>
+                          {borough.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    <option>Any</option>
-                    <option>Studio</option>
-                    <option>1 Bedroom</option>
-                    <option>2 Bedrooms</option>
-                    <option>3+ Bedrooms</option>
-                  </select>
+                  <Label htmlFor="bedrooms">Bedrooms</Label>
+                  <Select value={searchBedrooms} onValueChange={setSearchBedrooms}>
+                    <SelectTrigger id="bedrooms">
+                      <SelectValue placeholder="Any" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any</SelectItem>
+                      <SelectItem value="studio">Studio</SelectItem>
+                      <SelectItem value="1">1 Bedroom</SelectItem>
+                      <SelectItem value="2">2 Bedrooms</SelectItem>
+                      <SelectItem value="3">3+ Bedrooms</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Max Price</label>
-                  <input
+                  <Label htmlFor="maxPrice">Max Price</Label>
+                  <Input
+                    id="maxPrice"
                     type="number"
                     placeholder="£3000"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    value={searchMaxPrice}
+                    onChange={(e) => setSearchMaxPrice(e.target.value)}
                   />
                 </div>
+
                 <div className="flex items-end">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                    <Search className="w-4 h-4 mr-2" />
+                  <Button onClick={handleSearch} className="w-full">
                     Search
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
+        </div>
+      </section>
 
-          {/* Lead Capture Form */}
-          <Card className="mb-12 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+      {/* Lead Capture Form */}
+      <section className="py-16 bg-white">
+        <div className="container">
+          <Card className="max-w-3xl mx-auto">
             <CardHeader>
-              <CardTitle>Interested in London Properties?</CardTitle>
-              <CardDescription>Tell us what you're looking for and we'll help you find the perfect home</CardDescription>
+              <CardTitle className="text-2xl">Interested in London Properties?</CardTitle>
+              <CardDescription>
+                Tell us what you're looking for and we'll help you find the perfect home
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmitLead} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    <Label htmlFor="fullName">Full Name *</Label>
+                    <Input
+                      id="fullName"
                       placeholder="John Smith"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                    <input
-                      type="email"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
                       required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
                       placeholder="john@example.com"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
                       placeholder="+44 7700 900000"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">I'm interested in:</label>
-                    <select
-                      value={formData.interestedIn}
-                      onChange={(e) => setFormData({ ...formData, interestedIn: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="rent">Renting</option>
-                      <option value="buy">Buying</option>
-                      <option value="sell">Selling</option>
-                      <option value="invest">Investing</option>
-                    </select>
+                    <Label htmlFor="interestedIn">I'm interested in:</Label>
+                    <Select value={interestedIn} onValueChange={(val) => setInterestedIn(val as any)}>
+                      <SelectTrigger id="interestedIn">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Renting">Renting</SelectItem>
+                        <SelectItem value="Buying">Buying</SelectItem>
+                        <SelectItem value="Selling">Selling</SelectItem>
+                        <SelectItem value="Investing">Investing</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="preferredBorough">Preferred Borough</Label>
+                    <Select value={preferredBorough} onValueChange={setPreferredBorough}>
+                      <SelectTrigger id="preferredBorough">
+                        <SelectValue placeholder="Select a borough..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {boroughs.map((borough) => (
+                          <SelectItem key={borough.id} value={borough.id.toString()}>
+                            {borough.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Borough</label>
-                    <select
-                      value={formData.borough}
-                      onChange={(e) => setFormData({ ...formData, borough: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option>Select a borough...</option>
-                      <option>Westminster</option>
-                      <option>Camden</option>
-                      <option>Islington</option>
-                      <option>Hackney</option>
-                      <option>Tower Hamlets</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Budget (£/month)</label>
-                    <input
+                    <Label htmlFor="budget">Budget (£/month)</Label>
+                    <Input
+                      id="budget"
                       type="number"
-                      value={formData.budget}
-                      onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                       placeholder="2000"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={budget}
+                      onChange={(e) => setBudget(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Additional Message</label>
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  <Label htmlFor="message">Additional Message</Label>
+                  <Textarea
+                    id="message"
                     placeholder="Tell us more about what you're looking for..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" size="lg">
-                  Submit Interest
+                <Button type="submit" className="w-full" disabled={createLeadMutation.isPending}>
+                  {createLeadMutation.isPending ? "Submitting..." : "Submit Interest"}
                 </Button>
               </form>
             </CardContent>
           </Card>
+        </div>
+      </section>
 
-          {/* Featured Services */}
-          <div className="mb-12">
-            <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Our Services</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6 text-center">
-                  <Bell className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                  <h4 className="font-semibold text-gray-900 mb-2">Smart Alerts</h4>
-                  <p className="text-sm text-gray-600">Get instant notifications for properties matching your criteria</p>
-                  <Button variant="outline" className="w-full mt-4">
-                    Learn More
-                  </Button>
-                </CardContent>
-              </Card>
+      {/* Services Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container">
+          <h2 className="text-3xl font-bold text-center mb-12">Our Services</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader>
+                <Bell className="w-10 h-10 text-blue-600 mb-2" />
+                <CardTitle>Smart Alerts</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">Get instant notifications for properties matching your criteria</p>
+                <Button variant="outline" size="sm">Learn More</Button>
+              </CardContent>
+            </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6 text-center">
-                  <Star className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                  <h4 className="font-semibold text-gray-900 mb-2">Reviews</h4>
-                  <p className="text-sm text-gray-600">Read real reviews from people living in London neighborhoods</p>
-                  <Button variant="outline" className="w-full mt-4">
-                    Read Reviews
-                  </Button>
-                </CardContent>
-              </Card>
+            <Card>
+              <CardHeader>
+                <Star className="w-10 h-10 text-blue-600 mb-2" />
+                <CardTitle>Reviews</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">Read real reviews from people living in London neighborhoods</p>
+                <Button variant="outline" size="sm">Read Reviews</Button>
+              </CardContent>
+            </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6 text-center">
-                  <TrendingUp className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                  <h4 className="font-semibold text-gray-900 mb-2">Rent Calculator</h4>
-                  <p className="text-sm text-gray-600">Estimate rental prices based on location and features</p>
-                  <Button variant="outline" className="w-full mt-4">
-                    Calculate Rent
-                  </Button>
-                </CardContent>
-              </Card>
+            <Card>
+              <CardHeader>
+                <Calculator className="w-10 h-10 text-blue-600 mb-2" />
+                <CardTitle>Rent Calculator</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">Estimate rental prices based on location and features</p>
+                <Button variant="outline" size="sm">Calculate Rent</Button>
+              </CardContent>
+            </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6 text-center">
-                  <BookOpen className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                  <h4 className="font-semibold text-gray-900 mb-2">Guides</h4>
-                  <p className="text-sm text-gray-600">Expert guides to help you navigate London's rental market</p>
-                  <Button variant="outline" className="w-full mt-4">
-                    View Guides
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Featured Boroughs */}
-          <div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Popular Boroughs</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { name: "Westminster", avg: "£2,800/month", rating: 4.8 },
-                { name: "Camden", avg: "£2,600/month", rating: 4.5 },
-                { name: "Islington", avg: "£2,400/month", rating: 4.3 },
-                { name: "Hackney", avg: "£1,800/month", rating: 4.6 },
-              ].map((borough) => (
-                <Card key={borough.name} className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      <h4 className="font-semibold text-gray-900">{borough.name}</h4>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">Average Rent: {borough.avg}</p>
-                    <p className="text-sm text-yellow-600">★★★★★ {borough.rating}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <Card>
+              <CardHeader>
+                <BookOpen className="w-10 h-10 text-blue-600 mb-2" />
+                <CardTitle>Guides</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">Expert guides to help you navigate London's rental market</p>
+                <Button variant="outline" size="sm">View Guides</Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Domain for Sale Banner */}
-      <section className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-8 mt-16">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-8 h-8" />
-              <div>
-                <h3 className="text-xl font-bold">This Domain is For Sale</h3>
-                <p className="text-amber-100">Interested in purchasing londonhomerent.com?</p>
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <Button
-                asChild
-                className="bg-white text-orange-600 hover:bg-amber-50 font-semibold"
-              >
-                <a
-                  href="https://www.atom.com/view/name/LondonHomeRent.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Buy on Atom
-                </a>
-              </Button>
-              <Button
-                asChild
-                className="bg-white text-orange-600 hover:bg-amber-50 font-semibold"
-              >
-                <a
-                  href="https://sedo.com/search/details/?domain=londonhomerent.com&origin=domaindetails"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Buy on Sedo
-                </a>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="border-white text-white hover:bg-white/10 font-semibold"
-              >
-                <a href="/domain-for-sale" className="flex items-center justify-center gap-2">
-                  More Info
-                </a>
-              </Button>
-            </div>
+      {/* Popular Boroughs */}
+      <section className="py-16 bg-white">
+        <div className="container">
+          <h2 className="text-3xl font-bold text-center mb-12">Popular Boroughs</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {boroughs.slice(0, 4).map((borough) => (
+              <Card key={borough.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                <div className="h-48 bg-cover bg-center" style={{ backgroundImage: `url(/${borough.name.toLowerCase()}.jpg)` }} />
+                <CardHeader>
+                  <CardTitle>{borough.name}</CardTitle>
+                  <CardDescription>Average Rent: £{borough.averageRent.toLocaleString()}/month</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-1 text-yellow-500">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className={`w-4 h-4 ${i < Math.floor(borough.rating / 10) ? 'fill-current' : ''}`} />
+                    ))}
+                    <span className="ml-2 text-gray-600">{(borough.rating / 10).toFixed(1)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
+        </div>
+      </section>
+
+      {/* Domain for Sale Section */}
+      <section id="domain-sale" className="py-16 bg-gradient-to-b from-blue-50 to-white">
+        <div className="container">
+          <Card className="max-w-2xl mx-auto text-center">
+            <CardHeader>
+              <CardTitle className="text-3xl">This Domain is For Sale</CardTitle>
+              <CardDescription className="text-lg">
+                Interested in purchasing londonhomerent.com?
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <p className="text-gray-700">
+                This premium domain is perfect for real estate agencies, property management companies, 
+                or rental platforms focused on the London market.
+              </p>
+              <div className="bg-blue-50 p-6 rounded-lg">
+                <p className="font-semibold text-gray-900 mb-2">Contact us directly:</p>
+                <a 
+                  href="mailto:info@londonhomerent.com" 
+                  className="text-blue-600 hover:text-blue-700 font-medium text-lg"
+                >
+                  info@londonhomerent.com
+                </a>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                  <a href="https://sedo.com/search/details/?domain=londonhomerent.com&origin=domaindetails" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    Buy Now on Sedo
+                  </a>
+                </Button>
+                <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
+                  <a href="https://www.atom.com/name/LondonHomeRent" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    Buy Now on Atom
+                  </a>
+                </Button>
+              </div>
+              <Button size="lg" variant="outline" className="border-2">
+                <a href="mailto:info@londonhomerent.com">Make an Offer via Email</a>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 mt-0">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-400">© 2025 LondonHomeRent.com - All rights reserved</p>
+      <footer className="bg-gray-900 text-white py-8">
+        <div className="container text-center">
+          <p className="text-gray-400">© 2025 LondonHomeRent.com - Premium Domain for Sale</p>
+          <p className="text-gray-500 mt-2">Contact: khalid1055@gmail.com</p>
         </div>
       </footer>
     </div>
